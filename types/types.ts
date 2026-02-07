@@ -18,8 +18,16 @@ export type Flashcard = z.infer<typeof FlashcardSchema>;
 export const GenerationResponseSchema = z.array(FlashcardSchema);
 export type GenerationResponse = z.infer<typeof GenerationResponseSchema>;
 
-export type GenerationRequest = {
-	inputContent: string;
-	cardCount: number;
-	cardType: CardType;
-};
+export const GenerationRequestSchema = z.object({
+	inputContent: z.string().min(10, 'Content must be at least 10 characters.'),
+	cardCount: z.coerce
+		.number()
+		.min(1, 'Please select at least 1 card to generate.')
+		.max(30, 'Limit is 30 cards per generation'),
+	cardType: z.enum(CardType),
+});
+
+export type ActionState =
+	| { ok: true; data: GenerationResponse }
+	| { ok: false; error: string }
+	| null;
