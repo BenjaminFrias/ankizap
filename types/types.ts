@@ -1,12 +1,9 @@
 import { z } from 'zod';
 
-export enum CardType {
-	BASIC = 'basic',
-	REVERSED = 'reversed',
-}
+export const CardType = ['basic', 'reversed'] as const;
 
 export const FlashcardSchema = z.object({
-	id: z.string().or(z.number()),
+	id: z.string().length(5).describe('A unique 5-character ID'),
 	front: z.string().min(1, 'The front is required'),
 	back: z.string().min(1, 'The back is required'),
 	type: z.enum(CardType),
@@ -26,8 +23,16 @@ export const GenerationRequestSchema = z.object({
 		.max(30, 'Limit is 30 cards per generation'),
 	cardType: z.enum(CardType),
 });
+export type GenerationRequest = z.infer<typeof GenerationRequestSchema>;
 
-export type ActionState =
-	| { ok: true; data: GenerationResponse }
-	| { ok: false; error: string }
-	| null;
+export const RefineRequestSchema = z.object({
+	flashcard: FlashcardSchema,
+	userInstruction: z.string().min(5, 'Please write a valid refine prompt.'),
+});
+export type RefineRequest = z.infer<typeof RefineRequestSchema>;
+
+export const RefineResponseSchema = FlashcardSchema;
+
+export type ActionState<T> =
+	| { ok: true; data: T }
+	| { ok: false; error: string };
