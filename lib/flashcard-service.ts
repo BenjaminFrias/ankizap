@@ -10,9 +10,9 @@ import {
 import { callAI } from './ai-service';
 
 export async function generateFlashcards(
-	FlashcardData: GenerationRequest,
+	flashcardData: GenerationRequest,
 ): Promise<ActionState<GenerationResponse>> {
-	const { inputContent, cardCount, cardType } = FlashcardData;
+	const { inputContent, cardCount, cardType } = flashcardData;
 
 	const systemInstruction = `
         Your task is to transform the provided source content into a highly effective Anki flashcard deck.
@@ -40,9 +40,9 @@ export async function generateFlashcards(
 }
 
 export async function refineFlashcard(
-	FlashcardData: RefineRequest,
+	flashcardData: RefineRequest,
 ): Promise<ActionState<RefineResponse>> {
-	const { flashcard, refineInstruction } = FlashcardData;
+	const { flashcard, refineInstruction } = flashcardData;
 
 	const systemInstruction = `
         Your task is to refine an existing flashcard based on specific user instruction.
@@ -57,7 +57,7 @@ export async function refineFlashcard(
 		2. Targeted Change: Only modify the fields necessary to fulfill the user's instruction.
 		3. Preserve Atomicity: Ensure the card remains a single, focused concept.
 		4. No Prose: Return only the valid JSON object.
-		5. Generate a 5-digit random digit number for the id property in the JSON schema.
+		5. Generate a 5-digit random unique digit number for the id property in the JSON schema like (93428).
 
         OUTPUT:
         The response MUST be a valid JSON array of objects strictly following the provided schema. No prose or introductory text.
