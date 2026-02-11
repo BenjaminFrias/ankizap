@@ -1,12 +1,18 @@
 'use server';
 
-import { generateFlashcards } from './lib/generateFlashcards';
-import { ActionState, GenerationRequestSchema } from './types/types';
+import { generateFlashcards, refineFlashcard } from './lib/flashcard-service';
+import {
+	ActionState,
+	GenerationRequestSchema,
+	GenerationResponse,
+	RefineRequestSchema,
+	RefineResponse,
+} from './types/types';
 
 export async function generateAction(
-	prevState: ActionState,
+	prevState: ActionState<GenerationResponse>,
 	formData: FormData,
-): Promise<ActionState> {
+): Promise<ActionState<GenerationResponse>> {
 	const formRawData = Object.fromEntries(formData.entries());
 	const formValidated = GenerationRequestSchema.safeParse(formRawData);
 
@@ -25,6 +31,50 @@ export async function generateAction(
 		}
 
 		return { ok: true, data: cardsResponse.data };
+	} catch (error) {
+		console.error('Server action error: ', error);
+		return {
+			ok: false,
+			error: 'A connection error occurred. Please try again',
+		};
+	}
+}
+
+export async function refineAction(
+	prevState: ActionState<RefineResponse>,
+	formData: FormData,
+): Promise<ActionState<RefineResponse>> {
+	const rawFormData = Object.fromEntries(formData.entries());
+
+	const refineData = {
+		flashcard: JSON.parse(rawFormData.flashcard as string),
+		refineInstruction: rawFormData.refineInstruction,
+	};
+
+	const formValidated = RefineRequestSchema.safeParse(refineData);
+
+	if (!formValidated.success) {
+		return {
+			ok: false,
+			error: formValidated.error.issues[0].message ?? 'Invalid input',
+		};
+	}
+
+	try {
+		const cardResponse: ActionState<RefineResponse> = await refineFlashcard(
+			formValidated.data,
+		);
+
+		if (!cardResponse) {
+			return { ok: false, error: 'There was an error. Try again.' };
+		}
+
+		if (!cardResponse.ok) {
+			return { ok: false, error: cardResponse.error };
+		}
+		console.log(cardResponse.data);
+
+		return { ok: true, data: cardResponse.data };
 	} catch (error) {
 		console.error('Server action error: ', error);
 		return {

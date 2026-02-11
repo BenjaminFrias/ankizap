@@ -12,6 +12,12 @@ export const FlashcardSchema = z.object({
 export const FlashcardArraySchema = z.array(FlashcardSchema);
 export type Flashcard = z.infer<typeof FlashcardSchema>;
 
+// ACTIONS
+export type ActionState<T> =
+	| { ok: true; data: T }
+	| { ok: false; error: string };
+
+// GENERATION TYPES
 export const GenerationResponseSchema = z.array(FlashcardSchema);
 export type GenerationResponse = z.infer<typeof GenerationResponseSchema>;
 
@@ -25,14 +31,12 @@ export const GenerationRequestSchema = z.object({
 });
 export type GenerationRequest = z.infer<typeof GenerationRequestSchema>;
 
+// REFINE TYPES
 export const RefineRequestSchema = z.object({
 	flashcard: FlashcardSchema,
-	userInstruction: z.string().min(5, 'Please write a valid refine prompt.'),
+	refineInstruction: z.string().min(5, 'Please write a valid refine prompt.'),
 });
 export type RefineRequest = z.infer<typeof RefineRequestSchema>;
 
 export const RefineResponseSchema = FlashcardSchema;
-
-export type ActionState<T> =
-	| { ok: true; data: T }
-	| { ok: false; error: string };
+export type RefineResponse = z.infer<typeof RefineRequestSchema>;
