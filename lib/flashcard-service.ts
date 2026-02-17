@@ -6,19 +6,21 @@ import {
 	RefineRequest,
 	RefineResponse,
 	RefineRequestSchema,
+	SourceType,
 } from '@/types/types';
-import { callAI } from './ai-service';
+import { callAI, processAndUploadFileAI } from './ai-service';
+import { scrapeContentFromPrompt } from './utils';
 
 export async function generateFlashcards(
 	flashcardData: GenerationRequest,
 ): Promise<ActionState<GenerationResponse>> {
-	const { inputContent, cardCount, cardType } = flashcardData;
+	const { inputContent, cardCount, cardType, sourceType, file } = flashcardData;
 
 	const systemInstruction = `
         Your task is to transform the provided source content into a highly effective Anki flashcard deck.
 
         ### TASK:
-        Analyze the content above and generate exactly ${cardCount} flashcards.
+        Analyze the content provided by the user and generate exactly ${cardCount} flashcards.
        
         ### Strict Requirements:
         Quantity: Generate exactly ${cardCount} cards.
@@ -30,12 +32,64 @@ export async function generateFlashcards(
         The response MUST be a valid JSON array of objects strictly following the provided schema. No prose or introductory text.
 	`;
 
-	const userInstruction = `SOURCE CONTENT: ${inputContent}`;
+	let userInstruction = inputContent;
+	let fileInfo: { uri: string; mimeType: string } | undefined = undefined;
+
+	if (sourceType === SourceType.link) {
+		const linkContent = scrapeContentFromPrompt(inputContent);
+
+		if (linkContent === null) {
+			console.error('Error while scraping link in flashcard-service.ts.');
+			return { ok: false, error: 'Link is not supported.' };
+		}
+
+		if (linkContent.isYoutubeLink) {
+			// Call AI with link type if link is YT link
+			userInstruction = linkContent.content;
+			fileInfo = {
+				uri: linkContent.link,
+				mimeType: 'video/*',
+			};
+
+			return await callAI(
+				systemInstruction,
+				userInstruction,
+				GenerationResponseSchema,
+				sourceType,
+				fileInfo,
+			);
+		} else {
+			// Call AI with prompt type with non-YT links, AI can analyze those links.
+			userInstruction = inputContent;
+
+			return await callAI(
+				systemInstruction,
+				userInstruction,
+				GenerationResponseSchema,
+				SourceType.prompt,
+			);
+		}
+	}
+
+	if (sourceType === SourceType.file) {
+		try {
+			if (file) {
+				fileInfo = await processAndUploadFileAI(file, file.name);
+			} else {
+				return { ok: false, error: 'File is missing.' };
+			}
+		} catch (error) {
+			console.error('Error while processing file: ', error);
+			return { ok: false, error: 'File processing failed.' };
+		}
+	}
 
 	return await callAI(
 		systemInstruction,
 		userInstruction,
 		GenerationResponseSchema,
+		sourceType,
+		fileInfo,
 	);
 }
 
@@ -60,7 +114,7 @@ export async function refineFlashcard(
 		5. Generate a 5-digit random unique digit number for the id property in the JSON schema like (93428).
 
         OUTPUT:
-        The response MUST be a valid JSON array of objects strictly following the provided schema. No prose or introductory text.
+        The response MUST be a valid JSON strictly following the provided schema. No prose or introductory text.
 	`;
 
 	const userInstruction = `Refine instruction: ${refineInstruction}`;

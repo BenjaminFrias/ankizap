@@ -1,5 +1,11 @@
 import { MAX_CARD_COUNT, MIN_CARD_COUNT } from '@/constants';
-import { z } from 'zod';
+import { file, z } from 'zod';
+
+export enum SourceType {
+	prompt = 'prompt',
+	file = 'file',
+	link = 'link',
+}
 
 const CardTypeEnum = ['basic', 'reversed'] as const;
 export type CardType = (typeof CardTypeEnum)[number];
@@ -33,6 +39,8 @@ export const GenerationRequestSchema = z.object({
 		)
 		.max(MAX_CARD_COUNT, `Limit is ${MAX_CARD_COUNT} cards per generation`),
 	cardType: z.enum(CardTypeEnum),
+	sourceType: z.enum(SourceType),
+	file: z.instanceof(File).optional(),
 });
 export type GenerationRequest = z.infer<typeof GenerationRequestSchema>;
 

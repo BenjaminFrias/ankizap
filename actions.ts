@@ -11,6 +11,7 @@ import {
 	RefineRequest,
 	RefineRequestSchema,
 	RefineResponse,
+	SourceType,
 } from './types/types';
 import { MAX_CARD_COUNT, MIN_CARD_COUNT } from './constants';
 
@@ -19,6 +20,16 @@ export async function generateAction(
 	formData: FormData,
 ): Promise<ActionState<GenerationResponse>> {
 	const rawData = Object.fromEntries(formData.entries());
+	const inputContent = rawData.inputContent as string;
+	const cardType = rawData.cardType as CardType;
+
+	if (inputContent.trim() === '') {
+		return { ok: false, error: 'Missing input content' };
+	}
+
+	if (!cardType) {
+		return { ok: false, error: 'cardType is required.' };
+	}
 
 	const cardCount = Number(rawData.cardCount as string);
 	if (
@@ -30,9 +41,11 @@ export async function generateAction(
 	}
 
 	const generateData: GenerationRequest = {
-		inputContent: rawData.inputContent as string,
+		inputContent: inputContent,
 		cardCount: cardCount,
-		cardType: rawData.cardType as CardType,
+		cardType: cardType,
+		sourceType: rawData.sourceType as SourceType,
+		file: rawData.file as File,
 	};
 
 	const response = generalAction<GenerationRequest, GenerationResponse>(

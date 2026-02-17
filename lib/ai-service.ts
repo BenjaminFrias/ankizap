@@ -1,5 +1,8 @@
-import { ActionState } from '@/types/types';
+import { ActionState, SourceType } from '@/types/types';
 import {
+	ContentListUnion,
+	createPartFromUri,
+	createUserContent,
 	FinishReason,
 	GenerateContentConfig,
 	GoogleGenAI,
@@ -10,7 +13,7 @@ import {
 import z from 'zod';
 
 const API_KEY = process.env.AI_API_KEY;
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+export const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 const safetySettings = [
 	{
@@ -34,10 +37,45 @@ const safetySettings = [
 const GENERAL_INSTRUCTION =
 	'You are an expert educational designer specializing in spaced-repetition learning and the "20 Rules of Knowledge Formulation."';
 
+interface FormatterInput {
+	content: string;
+	file?: {
+		uri: string;
+		mimeType: string;
+	};
+}
+
+type ContentFormatter = (input: FormatterInput) => ContentListUnion;
+
+const SOURCE_FORMATTER: Record<SourceType, ContentFormatter> = {
+	[SourceType.prompt]: (input) => [
+		{ text: `User instruction to generate flashcards: ${input.content}` },
+	],
+	[SourceType.link]: (input) => {
+		const fileUri = input.file?.uri ?? input.content;
+		const mimeType = input.file?.mimeType ?? 'video/*';
+		const instructionText = input.content
+			? `User instruction to generate flashcards: ${input.content}`
+			: 'Create flashcards based on the video.';
+
+		return [{ fileData: { fileUri, mimeType } }, { text: instructionText }];
+	},
+	[SourceType.file]: (input) => {
+		if (!input.file) throw new Error('File data is required.');
+
+		return createUserContent([
+			createPartFromUri(input.file.uri, input.file.mimeType),
+			input.content,
+		]);
+	},
+};
+
 export async function callAI<T>(
 	aiInstruction: string,
 	userInstruction: string,
 	schema: z.ZodType<T>,
+	sourceType: SourceType = SourceType.prompt,
+	fileData?: { uri: string; mimeType: string },
 ): Promise<ActionState<T>> {
 	if (!API_KEY) {
 		console.error('Server configuration error: Missing API Key.');
@@ -56,9 +94,13 @@ export async function callAI<T>(
 	};
 
 	try {
+		const formatter = SOURCE_FORMATTER[sourceType];
+
+		const contents = formatter({ content: userInstruction, file: fileData });
+
 		const response = await ai.models.generateContent({
 			model: 'gemini-2.5-flash',
-			contents: [{ text: userInstruction }],
+			contents: contents,
 			config: aiConfig,
 		});
 
@@ -113,6 +155,40 @@ export async function callAI<T>(
 				return { ok: false, error: 'Invalid request parameters.' };
 		}
 
-		return { ok: false, error: 'Failed to reach AI.' };
+		return {
+			ok: false,
+			error: 'Failed to generate flashcards. Please try again.',
+		};
 	}
+}
+
+export async function processAndUploadFileAI(
+	fileBlob: Blob,
+	fileName: string,
+): Promise<{ uri: string; mimeType: string }> {
+	const uploadResponse = await ai.files.upload({
+		file: fileBlob,
+		config: { displayName: fileName },
+	});
+
+	let file = uploadResponse;
+
+	while (file.state === 'PROCESSING') {
+		await new Promise((res) => setTimeout(res, 2000));
+
+		file = await ai.files.get({ name: fileName });
+	}
+
+	if (file.state === 'FAILED') {
+		throw new Error('File processing failed. Please try again.');
+	}
+
+	if (!file.uri || !file.mimeType) {
+		throw new Error('File uploaded but metadata is missing.');
+	}
+
+	return {
+		uri: file.uri,
+		mimeType: file.mimeType,
+	};
 }
