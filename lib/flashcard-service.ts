@@ -7,6 +7,7 @@ import {
 	RefineResponse,
 	RefineRequestSchema,
 	SourceType,
+	RefineResponseSchema,
 } from '@/types/types';
 import { callAI, processAndUploadFileAI } from './ai-service';
 import { scrapeContentFromPrompt } from './utils';
@@ -119,5 +120,5 @@ export async function refineFlashcard(
 
 	const userInstruction = `Refine instruction: ${refineInstruction}`;
 
-	return await callAI(systemInstruction, userInstruction, RefineRequestSchema);
+	return await callAI(systemInstruction, userInstruction, RefineResponseSchema);
 }

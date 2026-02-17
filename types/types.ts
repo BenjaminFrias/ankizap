@@ -51,5 +51,5 @@ export const RefineRequestSchema = z.object({
 });
 export type RefineRequest = z.infer<typeof RefineRequestSchema>;
 
-export const RefineResponseSchema = FlashcardSchema;
-export type RefineResponse = z.infer<typeof RefineRequestSchema>;
+export const RefineResponseSchema = FlashcardSchema.clone();
+export type RefineResponse = z.infer<typeof RefineResponseSchema>;
