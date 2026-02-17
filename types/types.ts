@@ -18,6 +18,7 @@ export const FlashcardSchema = z.object({
 
 export const FlashcardArraySchema = z.array(FlashcardSchema);
 export type Flashcard = z.infer<typeof FlashcardSchema>;
+export type FlashcardWithId = Flashcard & { id: string };
 
 // ACTIONS
 export type ActionState<T> =

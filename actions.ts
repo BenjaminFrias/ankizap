@@ -5,6 +5,7 @@ import { generateFlashcards, refineFlashcard } from './lib/flashcard-service';
 import {
 	ActionState,
 	CardType,
+	FlashcardWithId,
 	GenerationRequest,
 	GenerationRequestSchema,
 	GenerationResponse,
@@ -69,7 +70,7 @@ export async function generateAction(
 export async function refineAction(
 	prevState: ActionState<RefineResponse>,
 	formData: FormData,
-): Promise<ActionState<RefineResponse>> {
+): Promise<ActionState<FlashcardWithId>> {
 	const rawData = Object.fromEntries(formData.entries());
 
 	let flashcard;
@@ -90,6 +91,10 @@ export async function refineAction(
 		refineFlashcard,
 		RefineRequestSchema,
 	);
+
+	if (response.ok) {
+		return { ok: true, data: { ...response.data, id: flashcard.id } };
+	}
 
 	return response;
 }
