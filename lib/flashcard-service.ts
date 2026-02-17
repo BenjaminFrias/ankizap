@@ -5,7 +5,6 @@ import {
 	GenerationResponse,
 	RefineRequest,
 	RefineResponse,
-	RefineRequestSchema,
 	SourceType,
 	RefineResponseSchema,
 } from '@/types/types';
@@ -112,7 +111,6 @@ export async function refineFlashcard(
 		2. Targeted Change: Only modify the fields necessary to fulfill the user's instruction.
 		3. Preserve Atomicity: Ensure the card remains a single, focused concept.
 		4. No Prose: Return only the valid JSON object.
-		5. Generate a 5-digit random unique digit number for the id property in the JSON schema like (93428).
 
         OUTPUT:
         The response MUST be a valid JSON strictly following the provided schema. No prose or introductory text.

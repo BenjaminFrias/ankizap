@@ -1,5 +1,5 @@
 import { MAX_CARD_COUNT, MIN_CARD_COUNT } from '@/constants';
-import { file, z } from 'zod';
+import { z } from 'zod';
 
 export enum SourceType {
 	prompt = 'prompt',
@@ -11,7 +11,6 @@ const CardTypeEnum = ['basic', 'reversed'] as const;
 export type CardType = (typeof CardTypeEnum)[number];
 
 export const FlashcardSchema = z.object({
-	id: z.string().length(5).describe('A unique 5-character ID'),
 	front: z.string().min(1, 'The front is required'),
 	back: z.string().min(1, 'The back is required'),
 	type: z.enum(CardTypeEnum),

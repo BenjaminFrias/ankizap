@@ -48,11 +48,20 @@ export async function generateAction(
 		file: rawData.file as File,
 	};
 
-	const response = generalAction<GenerationRequest, GenerationResponse>(
+	const response = await generalAction<GenerationRequest, GenerationResponse>(
 		generateData,
 		generateFlashcards,
 		GenerationRequestSchema,
 	);
+
+	if (response.ok) {
+		const cards = response.data.map((card) => ({
+			...card,
+			id: crypto.randomUUID(),
+		}));
+
+		return { ok: true, data: cards };
+	}
 
 	return response;
 }
@@ -76,7 +85,7 @@ export async function refineAction(
 		refineInstruction: rawData.refineInstruction as string,
 	};
 
-	const response = generalAction<RefineRequest, RefineResponse>(
+	const response = await generalAction<RefineRequest, RefineResponse>(
 		refineData,
 		refineFlashcard,
 		RefineRequestSchema,
