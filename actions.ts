@@ -17,9 +17,9 @@ import {
 import { MAX_CARD_COUNT, MIN_CARD_COUNT } from './constants';
 
 export async function generateAction(
-	prevState: ActionState<GenerationResponse>,
+	prevState: ActionState<GenerationResponse> | null,
 	formData: FormData,
-): Promise<ActionState<GenerationResponse>> {
+): Promise<ActionState<FlashcardWithId[]>> {
 	const rawData = Object.fromEntries(formData.entries());
 	const inputContent = rawData.inputContent as string;
 	const cardType = rawData.cardType as CardType;
@@ -68,7 +68,7 @@ export async function generateAction(
 }
 
 export async function refineAction(
-	prevState: ActionState<RefineResponse>,
+	prevState: ActionState<RefineResponse> | null,
 	formData: FormData,
 ): Promise<ActionState<FlashcardWithId>> {
 	const rawData = Object.fromEntries(formData.entries());
@@ -134,3 +134,5 @@ export async function generalAction<T, K>(
 		};
 	}
 }
+
+export async function downloadDeckAction() {}
