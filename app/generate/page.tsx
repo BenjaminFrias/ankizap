@@ -113,11 +113,11 @@ export default function Generate() {
 					{isFileInput && <InputFile />}
 
 					<div className="flex gap-4">
-						<Select name="cardCount" required>
+						<Select name="cardCount" required defaultValue="5">
 							<SelectTrigger className="w-full text-gray-600" size="sm">
 								<SelectValue placeholder="How many?" />
 							</SelectTrigger>
-							<SelectContent defaultValue="5">
+							<SelectContent>
 								<SelectGroup>
 									<SelectLabel>Amount of cards</SelectLabel>
 									<SelectItem value="5">5</SelectItem>
@@ -128,7 +128,7 @@ export default function Generate() {
 							</SelectContent>
 						</Select>
 
-						<Select name="cardType" required>
+						<Select name="cardType" required defaultValue="basic">
 							<SelectTrigger className="w-full" size="sm">
 								<SelectValue placeholder="Card type" />
 							</SelectTrigger>
