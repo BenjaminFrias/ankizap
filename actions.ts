@@ -134,5 +134,3 @@ export async function generalAction<T, K>(
 		};
 	}
 }
-
-export async function downloadDeckAction() {}
