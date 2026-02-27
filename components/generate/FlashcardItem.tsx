@@ -1,7 +1,7 @@
 'use client';
 
 import { ActionState, Flashcard, RefineResponse } from '@/types/types';
-import RefinePopover from './refine-popover';
+import RefinePopover from './RefinePopOver';
 import { useActionState, useMemo, useState } from 'react';
 import { refineAction } from '@/actions';
 import { Input } from '../ui/input';

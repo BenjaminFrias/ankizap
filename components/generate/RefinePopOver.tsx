@@ -2,12 +2,12 @@
 
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
-import { FlashcardWithId } from '@/types/types';
+import { RefineResponse } from '@/types/types';
 import { Input } from '../ui/input';
 import { useState } from 'react';
 
 type RefinePopoverProps = {
-	card: FlashcardWithId;
+	card: RefineResponse;
 	refineFormAction: (payload: FormData) => void;
 };
 

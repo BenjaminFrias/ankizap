@@ -3,7 +3,7 @@
 import { ActionState, GenerationResponse, RefineResponse } from '@/types/types';
 import { Check, Pen, X } from 'lucide-react';
 import { Button } from '../ui/button';
-import FlashcardItem from './flashcard-item';
+import FlashcardItem from './FlashcardItem';
 import { Input } from '../ui/input';
 import { useEffect, useState } from 'react';
 
