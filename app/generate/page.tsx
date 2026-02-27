@@ -206,6 +206,14 @@ export default function Generate() {
 						</div>
 					)
 				) : null}
+
+				{flashcards.length > 0 && (
+					<>
+						{flashcards.map((card) => (
+							<FlashcardItem key={card.id} card={card} onRefine={onRefine} />
+						))}
+					</>
+				)}
 			</section>
 
 			{flashcards.length > 0 ? (
