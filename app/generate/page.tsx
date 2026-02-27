@@ -1,7 +1,7 @@
 'use client';
 
 import { generateAction } from '@/actions';
-import FlashcardItem from '@/components/generate/flashcard-item';
+import FlashcardResults from '@/components/generate/FlashcardResults';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import InputFile from '@/components/ui/input-file';
@@ -15,58 +15,14 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import {
-	ActionState,
-	GenerationResponse,
-	RefineResponse,
-	SourceType,
-} from '@/types/types';
-import { Check, Pen, X } from 'lucide-react';
-import { useActionState, useEffect, useState } from 'react';
+import { SourceType } from '@/types/types';
+import { useActionState, useState } from 'react';
 
 export default function Generate() {
-	const [flashcards, setFlashcards] = useState<GenerationResponse['cards']>([]);
-	const [deckName, setDeckName] =
-		useState<GenerationResponse['deckName']>('MyDeck');
-
-	const [isEditingName, setIsEditingName] = useState(false);
-	const [editedName, setEditedName] = useState(deckName);
-
-	useEffect(() => {
-		setEditedName(deckName);
-	}, [deckName]);
-
-	const saveNameEdit = () => {
-		if (editedName.trim() === '') {
-			setEditedName(deckName);
-		}
-
-		setDeckName(editedName);
-	};
-
 	const [generateState, dispatchGenerate, isGenerating] = useActionState(
-		async (
-			prevState: ActionState<GenerationResponse> | null,
-			formData: FormData,
-		) => {
-			const result = await generateAction(prevState, formData);
-
-			if (result?.ok && result.data) {
-				setFlashcards(result.data.cards);
-				setDeckName(result.data.deckName);
-			}
-			return result;
-		},
+		generateAction,
 		null,
 	);
-
-	const onRefine = (refinedCard: RefineResponse) => {
-		setFlashcards((prevState) =>
-			prevState.map((card) =>
-				card.id === refinedCard.id ? refinedCard : card,
-			),
-		);
-	};
 
 	const [isFileInput, setIsFileInput] = useState(false);
 	const [sourceType, setSourceType] = useState(SourceType.prompt);
@@ -74,35 +30,6 @@ export default function Generate() {
 	const onSourceChange = (sourceType: SourceType) => {
 		setIsFileInput(sourceType === SourceType.file);
 		setSourceType(sourceType);
-	};
-
-	const handleExportDeck = async () => {
-		try {
-			const response = await fetch('api/download-deck', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ deckName: deckName, cards: flashcards }),
-			});
-
-			if (!response.ok) {
-				throw new Error('Failed to download deck');
-			}
-
-			const blob = await response.blob();
-
-			const url = window.URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `${deckName}.apkg`;
-			document.body.appendChild(a);
-			a.click();
-			a.remove();
-			window.URL.revokeObjectURL(url);
-		} catch (error) {
-			console.error('Failed to fetch deck: ', error);
-		}
 	};
 
 	return (
@@ -203,76 +130,7 @@ export default function Generate() {
 				</form>
 			</section>
 
-			<section>
-				{generateState ? (
-					generateState.ok === true ? (
-						<div>
-							{isEditingName ? (
-								<div>
-									<Input
-										value={editedName}
-										onKeyDown={(e) => e.key === 'Enter' && saveNameEdit()}
-										onChange={(e) => setEditedName(e.target.value)}
-										autoFocus
-									/>
-									<Button
-										variant={'secondary'}
-										onClick={() => setIsEditingName(false)}
-									>
-										<X />
-									</Button>
-									<Button
-										variant={'secondary'}
-										onClick={() => {
-											saveNameEdit();
-											setIsEditingName(false);
-										}}
-									>
-										<Check />
-									</Button>
-								</div>
-							) : (
-								<div className="flex gap-5">
-									<h3 className="text-xl font-bold mb-5">{deckName}</h3>
-									<Button
-										variant={'secondary'}
-										onClick={() => setIsEditingName(true)}
-									>
-										<Pen />
-									</Button>
-								</div>
-							)}
-							<div className="flex flex-col gap-5 ">
-								{flashcards.map((card) => (
-									<FlashcardItem
-										key={card.id}
-										card={card}
-										onRefine={onRefine}
-									/>
-								))}
-							</div>
-						</div>
-					) : (
-						<div className="p-4 bg-red-100 text-red-700 rounded-lg">
-							{generateState.error}
-						</div>
-					)
-				) : null}
-
-				{flashcards.length > 0 && (
-					<>
-						{flashcards.map((card) => (
-							<FlashcardItem key={card.id} card={card} onRefine={onRefine} />
-						))}
-					</>
-				)}
-			</section>
-
-			{flashcards.length > 0 ? (
-				<section>
-					<Button onClick={handleExportDeck}>Export Anki Deck</Button>
-				</section>
-			) : null}
+			{generateState && <FlashcardResults generateState={generateState} />}
 		</div>
 	);
 }
