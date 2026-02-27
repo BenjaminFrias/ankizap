@@ -17,14 +17,32 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
 	ActionState,
-	FlashcardWithId,
 	GenerationResponse,
+	RefineResponse,
 	SourceType,
 } from '@/types/types';
-import { useActionState, useState } from 'react';
+import { Check, Pen, X } from 'lucide-react';
+import { useActionState, useEffect, useState } from 'react';
 
 export default function Generate() {
-	const [flashcards, setFlashcards] = useState<FlashcardWithId[]>([]);
+	const [flashcards, setFlashcards] = useState<GenerationResponse['cards']>([]);
+	const [deckName, setDeckName] =
+		useState<GenerationResponse['deckName']>('MyDeck');
+
+	const [isEditingName, setIsEditingName] = useState(false);
+	const [editedName, setEditedName] = useState(deckName);
+
+	useEffect(() => {
+		setEditedName(deckName);
+	}, [deckName]);
+
+	const saveNameEdit = () => {
+		if (editedName.trim() === '') {
+			setEditedName(deckName);
+		}
+
+		setDeckName(editedName);
+	};
 
 	const [generateState, dispatchGenerate, isGenerating] = useActionState(
 		async (
@@ -34,14 +52,15 @@ export default function Generate() {
 			const result = await generateAction(prevState, formData);
 
 			if (result?.ok && result.data) {
-				setFlashcards(result.data);
+				setFlashcards(result.data.cards);
+				setDeckName(result.data.deckName);
 			}
 			return result;
 		},
 		null,
 	);
 
-	const onRefine = (refinedCard: FlashcardWithId) => {
+	const onRefine = (refinedCard: RefineResponse) => {
 		setFlashcards((prevState) =>
 			prevState.map((card) =>
 				card.id === refinedCard.id ? refinedCard : card,
@@ -59,7 +78,6 @@ export default function Generate() {
 
 	const handleExportDeck = async () => {
 		try {
-			const deckName = 'MyDeck';
 			const response = await fetch('api/download-deck', {
 				method: 'POST',
 				headers: {
@@ -189,7 +207,41 @@ export default function Generate() {
 				{generateState ? (
 					generateState.ok === true ? (
 						<div>
-							<h3 className="text-xl font-bold mb-5">Generated cards</h3>
+							{isEditingName ? (
+								<div>
+									<Input
+										value={editedName}
+										onKeyDown={(e) => e.key === 'Enter' && saveNameEdit()}
+										onChange={(e) => setEditedName(e.target.value)}
+										autoFocus
+									/>
+									<Button
+										variant={'secondary'}
+										onClick={() => setIsEditingName(false)}
+									>
+										<X />
+									</Button>
+									<Button
+										variant={'secondary'}
+										onClick={() => {
+											saveNameEdit();
+											setIsEditingName(false);
+										}}
+									>
+										<Check />
+									</Button>
+								</div>
+							) : (
+								<div className="flex gap-5">
+									<h3 className="text-xl font-bold mb-5">{deckName}</h3>
+									<Button
+										variant={'secondary'}
+										onClick={() => setIsEditingName(true)}
+									>
+										<Pen />
+									</Button>
+								</div>
+							)}
 							<div className="flex flex-col gap-5 ">
 								{flashcards.map((card) => (
 									<FlashcardItem

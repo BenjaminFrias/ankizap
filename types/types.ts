@@ -11,6 +11,7 @@ const CardTypeEnum = ['basic', 'reversed'] as const;
 export type CardType = (typeof CardTypeEnum)[number];
 
 export const FlashcardSchema = z.object({
+	id: z.string().optional(),
 	front: z.string().min(1, 'The front is required'),
 	back: z.string().min(1, 'The back is required'),
 	type: z.enum(CardTypeEnum),
@@ -18,7 +19,6 @@ export const FlashcardSchema = z.object({
 
 export const FlashcardArraySchema = z.array(FlashcardSchema);
 export type Flashcard = z.infer<typeof FlashcardSchema>;
-export type FlashcardWithId = Flashcard & { id: string };
 
 // ACTIONS
 export type ActionState<T> =
@@ -26,7 +26,11 @@ export type ActionState<T> =
 	| { ok: false; error: string };
 
 // GENERATION TYPES
-export const GenerationResponseSchema = z.array(FlashcardSchema);
+export const GenerationResponseSchema = z.object({
+	deckName: z.string().min(1, 'Deck name is required.'),
+	cards: z.array(FlashcardSchema),
+});
+
 export type GenerationResponse = z.infer<typeof GenerationResponseSchema>;
 
 export const GenerationRequestSchema = z.object({
@@ -42,6 +46,7 @@ export const GenerationRequestSchema = z.object({
 	sourceType: z.enum(SourceType),
 	file: z.instanceof(File).optional(),
 });
+
 export type GenerationRequest = z.infer<typeof GenerationRequestSchema>;
 
 // REFINE TYPES

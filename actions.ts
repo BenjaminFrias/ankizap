@@ -5,7 +5,6 @@ import { generateFlashcards, refineFlashcard } from './lib/flashcard-service';
 import {
 	ActionState,
 	CardType,
-	FlashcardWithId,
 	GenerationRequest,
 	GenerationRequestSchema,
 	GenerationResponse,
@@ -19,7 +18,7 @@ import { MAX_CARD_COUNT, MIN_CARD_COUNT } from './constants';
 export async function generateAction(
 	prevState: ActionState<GenerationResponse> | null,
 	formData: FormData,
-): Promise<ActionState<FlashcardWithId[]>> {
+): Promise<ActionState<GenerationResponse>> {
 	const rawData = Object.fromEntries(formData.entries());
 	const inputContent = rawData.inputContent as string;
 	const cardType = rawData.cardType as CardType;
@@ -56,12 +55,12 @@ export async function generateAction(
 	);
 
 	if (response.ok) {
-		const cards = response.data.map((card) => ({
+		const cards = response.data.cards.map((card) => ({
 			...card,
 			id: crypto.randomUUID(),
 		}));
 
-		return { ok: true, data: cards };
+		return { ok: true, data: { ...response.data, cards: cards } };
 	}
 
 	return response;
@@ -70,7 +69,7 @@ export async function generateAction(
 export async function refineAction(
 	prevState: ActionState<RefineResponse> | null,
 	formData: FormData,
-): Promise<ActionState<FlashcardWithId>> {
+): Promise<ActionState<RefineResponse>> {
 	const rawData = Object.fromEntries(formData.entries());
 
 	let flashcard;

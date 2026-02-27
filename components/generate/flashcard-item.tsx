@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionState, FlashcardWithId, RefineResponse } from '@/types/types';
+import { ActionState, Flashcard, RefineResponse } from '@/types/types';
 import RefinePopover from './refine-popover';
 import { useActionState, useMemo, useState } from 'react';
 import { refineAction } from '@/actions';
@@ -9,8 +9,8 @@ import { Button } from '../ui/button';
 import { Check, Pen, X } from 'lucide-react';
 
 type FlashcardItemProps = {
-	card: FlashcardWithId;
-	onRefine: (card: FlashcardWithId) => void;
+	card: Flashcard;
+	onRefine: (card: RefineResponse) => void;
 };
 
 export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
