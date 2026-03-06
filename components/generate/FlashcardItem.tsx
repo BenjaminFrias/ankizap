@@ -104,7 +104,7 @@ export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
 						</>
 					)}
 
-					{isEditing && (
+					{isEditing ? (
 						<>
 							<Button variant={'secondary'} onClick={saveEdit}>
 								<Check />
@@ -113,8 +113,9 @@ export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
 								<X />
 							</Button>
 						</>
+					) : (
+						<RefinePopover card={card} refineFormAction={dispatchRefine} />
 					)}
-					<RefinePopover card={card} refineFormAction={dispatchRefine} />
 				</>
 			)}
 		</div>
