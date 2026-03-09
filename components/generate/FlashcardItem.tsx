@@ -1,8 +1,8 @@
 'use client';
 
-import { ActionState, Flashcard, RefineResponse } from '@/types/types';
+import { Flashcard, RefineResponse } from '@/types/types';
 import RefinePopover from './RefinePopOver';
-import { useActionState, useMemo, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { refineAction } from '@/actions';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -14,38 +14,23 @@ type FlashcardItemProps = {
 };
 
 export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
-	const [editedCard, setEditedCard] = useState({
-		front: card.front,
-		back: card.back,
-	});
+	const [editedCard, setEditedCard] = useState({ ...card });
 
 	const [refineState, dispatchRefine, isRefining] = useActionState(
-		async (
-			prevState: ActionState<RefineResponse> | null,
-			formData: FormData,
-		) => {
-			const result = await refineAction(prevState, formData);
-
-			if (result?.ok && result.data) {
-				setEditedCard({
-					...card,
-					front: result.data.front,
-					back: result.data.back,
-				});
-				onRefine(result.data);
-			}
-			return result;
-		},
+		refineAction,
 		null,
 	);
 
-	const cardData = useMemo(() => {
-		return refineState?.ok ? refineState.data : card;
-	}, [refineState, card]);
+	useEffect(() => {
+		if (refineState?.ok && refineState.data) {
+			onRefine({ ...refineState.data });
+		}
+	}, [refineState, onRefine]);
 
 	const [isEditing, setIsEditing] = useState(false);
 
 	const startEditing = () => {
+		setEditedCard({ ...card });
 		setIsEditing(true);
 	};
 
@@ -60,7 +45,6 @@ export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
 
 	const cancelEdit = () => {
 		setIsEditing(false);
-		setEditedCard({ front: card.front, back: card.back });
 	};
 
 	return (
@@ -81,7 +65,7 @@ export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
 						/>
 					) : (
 						<>
-							<p>{cardData.front}</p>
+							<p>{card.front}</p>
 						</>
 					)}
 					<hr />
@@ -97,7 +81,7 @@ export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
 						/>
 					) : (
 						<>
-							<p>{cardData.back}</p>
+							<p>{card.back}</p>
 							<Button variant={'secondary'} onClick={startEditing}>
 								<Pen />
 							</Button>

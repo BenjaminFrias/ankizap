@@ -5,7 +5,7 @@ import { Check, Pen, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import FlashcardItem from './FlashcardItem';
 import { Input } from '../ui/input';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type FlashcardResultsProps = {
 	generateState: ActionState<GenerationResponse>;
@@ -38,15 +38,13 @@ export default function FlashcardResults({
 		setDeckName(editedName);
 	};
 
-	const onRefine = (refinedCard: RefineResponse) => {
-		console.log('On refine...\n\n');
-
+	const onRefine = useCallback((refinedCard: RefineResponse) => {
 		setFlashcards((prevState) =>
 			prevState.map((card) =>
 				card.id === refinedCard.id ? refinedCard : card,
 			),
 		);
-	};
+	}, []);
 
 	const handleExportDeck = async () => {
 		try {
