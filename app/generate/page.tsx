@@ -21,7 +21,16 @@ export default function Generate() {
 				<GenerateForm onSubmit={dispatchGenerate} isGenerating={isGenerating} />
 			</section>
 
-			{generateState && <FlashcardResults generateState={generateState} />}
+			{generateState && (
+				<FlashcardResults
+					key={
+						generateState.ok
+							? generateState.data.cards.map((card) => card.id).join('-')
+							: 'empty'
+					}
+					generateState={generateState}
+				/>
+			)}
 		</div>
 	);
 }
