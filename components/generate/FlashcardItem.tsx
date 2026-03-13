@@ -1,19 +1,25 @@
 'use client';
 
-import { Flashcard, RefineResponse } from '@/types/types';
+import { Flashcard } from '@/types/types';
 import RefinePopover from './RefinePopOver';
 import { useActionState, useEffect, useState } from 'react';
 import { refineAction } from '@/actions';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { Check, Pen, X } from 'lucide-react';
+import { Check, Delete, Pen, X } from 'lucide-react';
+import DeletePopOver from './DeletePopOver';
 
 type FlashcardItemProps = {
 	card: Flashcard;
-	onRefine: (card: RefineResponse) => void;
+	onRefine: (card: Flashcard) => void;
+	onDelete: (card: Flashcard) => void;
 };
 
-export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
+export default function FlashcardItem({
+	card,
+	onRefine,
+	onDelete,
+}: FlashcardItemProps) {
 	const [editedCard, setEditedCard] = useState({ ...card });
 
 	const [refineState, dispatchRefine, isRefining] = useActionState(
@@ -100,6 +106,8 @@ export default function FlashcardItem({ card, onRefine }: FlashcardItemProps) {
 					) : (
 						<RefinePopover card={card} refineFormAction={dispatchRefine} />
 					)}
+
+					<DeletePopOver onDelete={() => onDelete(card)} />
 				</>
 			)}
 		</div>

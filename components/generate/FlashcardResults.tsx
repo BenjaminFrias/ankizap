@@ -1,6 +1,6 @@
 'use client';
 
-import { ActionState, GenerationResponse, RefineResponse } from '@/types/types';
+import { ActionState, Flashcard, GenerationResponse } from '@/types/types';
 import { Button } from '../ui/button';
 import FlashcardItem from './FlashcardItem';
 import { useCallback, useState } from 'react';
@@ -22,12 +22,16 @@ export default function FlashcardResults({
 		generateState.ok ? generateState.data.deckName : 'MyDeck',
 	);
 
-	const onRefine = useCallback((refinedCard: RefineResponse) => {
+	const handleRefine = useCallback((refinedCard: Flashcard) => {
 		setFlashcards((prevState) =>
 			prevState.map((card) =>
 				card.id === refinedCard.id ? refinedCard : card,
 			),
 		);
+	}, []);
+
+	const handleDelete = useCallback((cardToDelete: Flashcard) => {
+		setFlashcards((prev) => prev.filter((card) => card.id !== cardToDelete.id));
 	}, []);
 
 	return (
@@ -38,7 +42,12 @@ export default function FlashcardResults({
 
 					<section className="flex flex-col gap-5 ">
 						{flashcards.map((card) => (
-							<FlashcardItem key={card.id} card={card} onRefine={onRefine} />
+							<FlashcardItem
+								key={card.id}
+								card={card}
+								onRefine={handleRefine}
+								onDelete={handleDelete}
+							/>
 						))}
 					</section>
 
