@@ -18,7 +18,6 @@ export default function RefinePopover({
 	refineFormAction,
 }: RefinePopoverProps) {
 	const [isOpen, setIsOpen] = useState(false);
-
 	const [refineValue, setRefineValue] = useState('');
 	const [error, setError] = useState<string | null>(null);
 
