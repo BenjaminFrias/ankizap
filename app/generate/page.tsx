@@ -21,6 +21,10 @@ export default function Generate() {
 				<GenerateForm onSubmit={dispatchGenerate} isGenerating={isGenerating} />
 			</section>
 
+			{isGenerating && (
+				<h3 className="font-bold text-2xl text-blue-800">Generating...</h3>
+			)}
+
 			{generateState && (
 				<FlashcardResults
 					key={
