@@ -21,19 +21,19 @@ export default function Generate() {
 				<GenerateForm onSubmit={dispatchGenerate} isGenerating={isGenerating} />
 			</section>
 
-			{isGenerating && (
+			{isGenerating ? (
 				<h3 className="font-bold text-2xl text-blue-800">Generating...</h3>
-			)}
-
-			{generateState && (
-				<FlashcardResults
-					key={
-						generateState.ok
-							? generateState.data.cards.map((card) => card.id).join('-')
-							: 'empty'
-					}
-					generateState={generateState}
-				/>
+			) : (
+				generateState && (
+					<FlashcardResults
+						key={
+							generateState.ok
+								? generateState.data.cards.map((card) => card.id).join('-')
+								: 'empty'
+						}
+						generateState={generateState}
+					/>
+				)
 			)}
 		</div>
 	);
