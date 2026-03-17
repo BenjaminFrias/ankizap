@@ -159,10 +159,11 @@ export default function FlashcardItem({
 						</Button>
 					</>
 				) : (
-					<RefinePopover card={card} refineFormAction={dispatchRefine} />
+					<>
+						<RefinePopover card={card} refineFormAction={dispatchRefine} />
+						<DeletePopOver onDelete={() => onDelete(card)} />
+					</>
 				)}
-
-				<DeletePopOver onDelete={() => onDelete(card)} />
 			</>
 		</div>
 	);
