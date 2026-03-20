@@ -391,5 +391,40 @@ describe('Generate Page', () => {
 			expect(screen.queryByText('Q1')).toBeInTheDocument();
 			expect(screen.getByText('Q2')).toBeInTheDocument();
 		});
+
+		it('cannot delete all cards', async () => {
+			mockGenerateAction.mockResolvedValue(mockGenerationResultSuccess);
+
+			const user = userEvent.setup();
+			render(<Page />);
+
+			await user.type(screen.getByRole('textbox'), 'Photosynthesis');
+			await user.click(screen.getByRole('button', { name: /generate/i }));
+
+			expect(await screen.findByText('Q1')).toBeInTheDocument();
+			expect(screen.getByText('Q2')).toBeInTheDocument();
+
+			await user.click(
+				screen.getAllByRole('button', {
+					name: /delete card/i,
+				})[0],
+			);
+
+			await user.click(
+				screen.getByRole('button', { name: /confirm deletion/i }),
+			);
+
+			await user.click(
+				screen.getAllByRole('button', {
+					name: /delete card/i,
+				})[0],
+			);
+
+			await user.click(
+				screen.getByRole('button', { name: /confirm deletion/i }),
+			);
+
+			expect(screen.getByRole('region', { name: /error message/i }));
+		});
 	});
 });
