@@ -33,6 +33,7 @@ export default function DeckTitleInput({
 				onKeyDown={(e) => e.key === 'Enter' && saveNameEdit()}
 				onChange={(e) => setEditedName(e.target.value)}
 				autoFocus
+				aria-label="deck name edit input"
 			/>
 			<Button
 				variant={'secondary'}
@@ -40,17 +41,26 @@ export default function DeckTitleInput({
 					setEditedName(deckName);
 					setIsEditingName(false);
 				}}
+				aria-label="cancel deck name edit"
 			>
 				<X />
 			</Button>
-			<Button variant={'secondary'} onClick={saveNameEdit}>
+			<Button
+				variant={'secondary'}
+				onClick={saveNameEdit}
+				aria-label="save deck name edit"
+			>
 				<Check />
 			</Button>
 		</div>
 	) : (
 		<div className="flex gap-5">
 			<h3 className="text-xl font-bold mb-5">{deckName}</h3>
-			<Button variant={'secondary'} onClick={() => setIsEditingName(true)}>
+			<Button
+				variant={'secondary'}
+				onClick={() => setIsEditingName(true)}
+				aria-label="edit deck name"
+			>
 				<Pen />
 			</Button>
 		</div>

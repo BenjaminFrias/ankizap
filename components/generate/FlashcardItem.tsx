@@ -79,7 +79,11 @@ export default function FlashcardItem({
 	// Confirmation card
 	if (waitingConfirmation && refinedCard) {
 		return (
-			<div className={cardWrapperClass}>
+			<div
+				className={cardWrapperClass}
+				role="region"
+				aria-label="confirmation card"
+			>
 				<div>Confirmation card</div>
 				<p className={labelClass}>Front</p>
 				<p>{refinedCard.front}</p>
@@ -89,6 +93,7 @@ export default function FlashcardItem({
 					onClick={() => {
 						confirmRefinement(true);
 					}}
+					aria-label="accept refined card"
 				>
 					Accept card
 				</Button>
@@ -96,6 +101,7 @@ export default function FlashcardItem({
 					onClick={() => {
 						confirmRefinement(false);
 					}}
+					aria-label="reject refined card"
 				>
 					Reject card
 				</Button>
@@ -117,6 +123,7 @@ export default function FlashcardItem({
 						onChange={(e) => {
 							setEditedCard({ ...editedCard, front: e.target.value });
 						}}
+						aria-label="edit front card input"
 						autoFocus
 					/>
 				) : (
@@ -137,12 +144,17 @@ export default function FlashcardItem({
 						onChange={(e) =>
 							setEditedCard({ ...editedCard, back: e.target.value })
 						}
+						aria-label="edit back card input"
 						autoFocus
 					/>
 				) : (
 					<>
 						<p>{card.back}</p>
-						<Button variant={'secondary'} onClick={startEditing}>
+						<Button
+							variant={'secondary'}
+							onClick={startEditing}
+							aria-label="edit card"
+						>
 							<Pen />
 						</Button>
 					</>
@@ -151,10 +163,18 @@ export default function FlashcardItem({
 				{/* Confirmation buttons */}
 				{isEditing ? (
 					<>
-						<Button variant={'secondary'} onClick={saveEdit}>
+						<Button
+							variant={'secondary'}
+							onClick={saveEdit}
+							aria-label="save card edit"
+						>
 							<Check />
 						</Button>
-						<Button variant={'secondary'} onClick={cancelEdit}>
+						<Button
+							variant={'secondary'}
+							onClick={cancelEdit}
+							aria-label="cancel card edit"
+						>
 							<X />
 						</Button>
 					</>

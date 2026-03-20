@@ -61,11 +61,17 @@ export default function RefinePopover({
 			}}
 		>
 			<PopoverTrigger asChild className="mt-5">
-				<Button variant="outline">Refine card</Button>
+				<Button variant="outline" aria-label="refine card">
+					Refine card
+				</Button>
 			</PopoverTrigger>
 
 			<PopoverContent className="w-80">
-				<form id={`refine-form-${card.id}`} onSubmit={handleSubmit}>
+				<form
+					id={`refine-form-${card.id}`}
+					onSubmit={handleSubmit}
+					aria-label="refine form"
+				>
 					<div className="grid gap-4">
 						<div className="space-y-2">
 							<p className="text-muted-foreground text-sm">
@@ -82,11 +88,13 @@ export default function RefinePopover({
 								}}
 								aria-invalid={!!error}
 								aria-describedby={error ? `refine-error-${card.id}` : undefined}
+								aria-label="refine card input"
 							/>
 							{error && (
 								<p
 									id={`refine-error-${card.id}`}
 									className="text-sm text-destructive"
+									aria-label="error message"
 								>
 									{error}
 								</p>
@@ -96,6 +104,7 @@ export default function RefinePopover({
 								size="sm"
 								className="w-30 bg-blue-800"
 								form={`refine-form-${card.id}`}
+								aria-label="submit refine form button"
 							>
 								Refine
 							</Button>

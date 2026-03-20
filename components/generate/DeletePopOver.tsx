@@ -14,7 +14,9 @@ export default function DeletePopOver({ onDelete }: DeletePopOverProps) {
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild className="mt-5">
-				<Button variant={'secondary'}>Delete</Button>
+				<Button variant={'secondary'} aria-label="delete card">
+					Delete
+				</Button>
 			</PopoverTrigger>
 
 			<PopoverContent className="w-80">
@@ -25,10 +27,13 @@ export default function DeletePopOver({ onDelete }: DeletePopOverProps) {
 							onDelete();
 							setOpen(false);
 						}}
+						aria-label="confirm deletion"
 					>
 						Yes
 					</Button>
-					<Button onClick={() => setOpen(false)}>No</Button>
+					<Button onClick={() => setOpen(false)} aria-label="cancel deletion">
+						No
+					</Button>
 				</div>
 			</PopoverContent>
 		</Popover>
