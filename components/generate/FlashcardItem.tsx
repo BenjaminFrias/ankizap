@@ -8,6 +8,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Check, Pen, X } from 'lucide-react';
 import DeletePopOver from './DeletePopOver';
+import ConfirmationCard from './ConfirmationCard';
 
 type FlashcardItemProps = {
 	card: Flashcard;
@@ -64,13 +65,9 @@ export default function FlashcardItem({
 		setWaitingConfirmation(false);
 	};
 
-	// Classes for card
-	const cardWrapperClass = 'flex flex-col gap-2 p-4 bg-blue-300 rounded-2xl';
-	const labelClass = 'font-semibold text-sm text-blue-900 uppercase';
-
 	if (isRefining) {
 		return (
-			<div className={cardWrapperClass}>
+			<div className="flex flex-col gap-2 p-4 bg-blue-300 rounded-2xl">
 				<h3 className="font-bold text-2xl text-blue-800">Refining card...</h3>
 			</div>
 		);
@@ -79,41 +76,15 @@ export default function FlashcardItem({
 	// Confirmation card
 	if (waitingConfirmation && refinedCard) {
 		return (
-			<div
-				className={cardWrapperClass}
-				role="region"
-				aria-label="confirmation card"
-			>
-				<div>Confirmation card</div>
-				<p className={labelClass}>Front</p>
-				<p>{refinedCard.front}</p>
-				<p className={labelClass}>Back</p>
-				<p>{refinedCard.back}</p>
-				<Button
-					onClick={() => {
-						confirmRefinement(true);
-					}}
-					aria-label="accept refined card"
-				>
-					Accept card
-				</Button>
-				<Button
-					onClick={() => {
-						confirmRefinement(false);
-					}}
-					aria-label="reject refined card"
-				>
-					Reject card
-				</Button>
-			</div>
+			<ConfirmationCard card={refinedCard} onConfirm={confirmRefinement} />
 		);
 	}
 
 	// Actual card
 	return (
-		<div className={cardWrapperClass}>
+		<div className="flex flex-col gap-2 p-4 bg-blue-300 rounded-2xl">
 			<>
-				<p className={labelClass}>Front</p>
+				<p className="font-semibold text-sm text-blue-900 uppercase">Front</p>
 
 				{/* Front edit inputs */}
 				{isEditing ? (
@@ -134,7 +105,7 @@ export default function FlashcardItem({
 
 				<hr />
 
-				<p className={labelClass}>Back</p>
+				<p className="font-semibold text-sm text-blue-900 uppercase">Back</p>
 
 				{/* Back edit inputs */}
 				{isEditing ? (
