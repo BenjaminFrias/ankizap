@@ -2,14 +2,14 @@
 
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
-import { RefineResponse } from '@/types/types';
+import { Flashcard } from '@/types/types';
 import { Input } from '../ui/input';
 import { startTransition, SubmitEventHandler, useState } from 'react';
 
 const MIN_REFINE_LENGTH = 5;
 
 type RefinePopoverProps = {
-	card: RefineResponse;
+	card: Flashcard;
 	refineFormAction: (payload: FormData) => void;
 };
 
@@ -27,7 +27,9 @@ export default function RefinePopover({
 
 		const trimmed = refineValue.trim();
 		if (trimmed.length < MIN_REFINE_LENGTH) {
-			setError(`Please write a valid refine prompt (5 characters min).`);
+			setError(
+				`Please write a valid refine prompt (${MIN_REFINE_LENGTH} characters min).`,
+			);
 			return;
 		}
 
@@ -94,7 +96,7 @@ export default function RefinePopover({
 								<p
 									id={`refine-error-${card.id}`}
 									className="text-sm text-destructive"
-									aria-label="error message"
+									aria-label="refine error message"
 								>
 									{error}
 								</p>
