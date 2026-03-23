@@ -2,7 +2,7 @@
 
 import { ActionState, Flashcard, RefineResponse } from '@/types/types';
 import RefinePopover from './RefinePopover';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { refineAction } from '@/actions';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -38,11 +38,13 @@ export default function FlashcardItem({
 		},
 		null,
 	);
-	const [editedCard, setEditedCard] = useState({ ...card });
-	const [isEditing, setIsEditing] = useState(false);
 
 	const refinedCard =
 		refineResult?.ok && refineResult.data ? refineResult.data : null;
+
+	const [editedCard, setEditedCard] = useState({ ...card });
+	const [isEditing, setIsEditing] = useState(false);
+	const cardRef = useRef<HTMLDivElement | null>(null);
 
 	const startCardEdit = () => {
 		setEditedCard({ ...card });
@@ -58,7 +60,7 @@ export default function FlashcardItem({
 		setIsEditing(false);
 	};
 
-	const cancelEdit = () => {
+	const cancelCardEdit = () => {
 		setIsEditing(false);
 	};
 
@@ -68,6 +70,21 @@ export default function FlashcardItem({
 		}
 		setWaitingConfirmation(false);
 	};
+
+	useEffect(() => {
+		if (!isEditing) return;
+
+		const handlePointerDown = (event: PointerEvent) => {
+			const target = event.target as Node;
+
+			if (cardRef.current && !cardRef.current.contains(target)) {
+				cancelCardEdit();
+			}
+		};
+
+		document.addEventListener('pointerdown', handlePointerDown);
+		return () => document.removeEventListener('pointerdown', handlePointerDown);
+	}, [isEditing]);
 
 	if (isRefining) {
 		return <RefineCardLoading />;
@@ -82,7 +99,10 @@ export default function FlashcardItem({
 
 	// Actual card
 	return (
-		<div className="flex flex-col gap-2 p-4 bg-blue-300 rounded-2xl">
+		<div
+			className="flex flex-col gap-2 p-4 bg-blue-300 rounded-2xl"
+			ref={cardRef}
+		>
 			<>
 				<p className="font-semibold text-sm text-blue-900 uppercase">Front</p>
 
@@ -142,7 +162,7 @@ export default function FlashcardItem({
 						</Button>
 						<Button
 							variant={'secondary'}
-							onClick={cancelEdit}
+							onClick={cancelCardEdit}
 							aria-label="cancel card edit"
 						>
 							<X />
