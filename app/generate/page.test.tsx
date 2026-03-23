@@ -77,12 +77,6 @@ describe('Generate Page', () => {
 			await user.click(screen.getByRole('button', { name: /generate/i }));
 
 			expect(
-				await screen.findByRole('region', {
-					name: 'generation error message',
-				}),
-			).toBeInTheDocument();
-
-			expect(
 				await screen.findByText('Error generating flashcards'),
 			).toBeInTheDocument();
 
@@ -431,7 +425,9 @@ describe('Generate Page', () => {
 				screen.getByRole('button', { name: /confirm deletion/i }),
 			);
 
-			expect(screen.getByRole('region', { name: /error message/i }));
+			expect(
+				await screen.findByText('Deck must have at least one card.'),
+			).toBeInTheDocument();
 		});
 	});
 });

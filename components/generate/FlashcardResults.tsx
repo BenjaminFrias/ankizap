@@ -6,6 +6,7 @@ import FlashcardItem from './FlashcardItem';
 import { useCallback, useState } from 'react';
 import downloadDeck from '@/lib/download-deck';
 import DeckTitleInput from './DeckTitleInput';
+import ErrorMessage from '../ui/ErrorMessage';
 
 type FlashcardResultsProps = {
 	generationResult: ActionState<GenerationResponse>;
@@ -50,30 +51,14 @@ export default function FlashcardResults({
 	};
 
 	if (!generationResult.ok) {
-		return (
-			<div
-				className="p-4 bg-red-100 text-red-700 rounded-lg"
-				aria-label="generation error message"
-				role="region"
-			>
-				{generationResult.error}
-			</div>
-		);
+		return <ErrorMessage message={generationResult.error} />;
 	}
 
 	return (
 		<section>
 			<DeckTitleInput deckName={deckName} onDeckChange={handleDeckNameChange} />
 
-			{localError && (
-				<div
-					className="p-4 bg-red-100 text-red-700 rounded-lg my-5"
-					role="region"
-					aria-label="error message"
-				>
-					{localError}
-				</div>
-			)}
+			{localError && <ErrorMessage message={localError} />}
 
 			<div className="flex flex-col gap-5 ">
 				{flashcards.map((card) => (
