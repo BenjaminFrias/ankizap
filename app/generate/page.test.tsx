@@ -67,7 +67,7 @@ describe('Generate Page', () => {
 			expect(screen.getByText(mockDeckName)).toBeInTheDocument();
 		});
 
-		it('shows flashcards on error', async () => {
+		it('shows error when generation fails', async () => {
 			mockGenerateAction.mockResolvedValue(mockGenerationResultError);
 
 			const user = userEvent.setup();
@@ -77,8 +77,15 @@ describe('Generate Page', () => {
 			await user.click(screen.getByRole('button', { name: /generate/i }));
 
 			expect(
+				await screen.findByRole('region', {
+					name: 'generation error message',
+				}),
+			).toBeInTheDocument();
+
+			expect(
 				await screen.findByText('Error generating flashcards'),
 			).toBeInTheDocument();
+
 			expect(screen.queryByText('Q1')).not.toBeInTheDocument();
 			expect(screen.queryByText('Q2')).not.toBeInTheDocument();
 			expect(screen.queryByText(mockDeckName)).not.toBeInTheDocument();

@@ -49,47 +49,48 @@ export default function FlashcardResults({
 		setDeckName(name);
 	};
 
+	if (!generationResult.ok) {
+		return (
+			<div
+				className="p-4 bg-red-100 text-red-700 rounded-lg"
+				aria-label="generation error message"
+				role="region"
+			>
+				{generationResult.error}
+			</div>
+		);
+	}
+
 	return (
 		<section>
-			{generationResult.ok === true ? (
-				<div>
-					<DeckTitleInput
-						deckName={deckName}
-						onDeckChange={handleDeckNameChange}
-					/>
+			<DeckTitleInput deckName={deckName} onDeckChange={handleDeckNameChange} />
 
-					{localError && (
-						<div
-							className="p-4 bg-red-100 text-red-700 rounded-lg my-5"
-							role="region"
-							aria-label="error message"
-						>
-							{localError}
-						</div>
-					)}
-
-					<section className="flex flex-col gap-5 ">
-						{flashcards.map((card) => (
-							<FlashcardItem
-								key={card.id}
-								card={card}
-								onRefine={handleRefine}
-								onDelete={handleDelete}
-							/>
-						))}
-					</section>
-
-					<section>
-						<Button onClick={() => downloadDeck({ deckName, flashcards })}>
-							Export Anki Deck
-						</Button>
-					</section>
-				</div>
-			) : (
-				<div className="p-4 bg-red-100 text-red-700 rounded-lg">
-					{generationResult.error}
+			{localError && (
+				<div
+					className="p-4 bg-red-100 text-red-700 rounded-lg my-5"
+					role="region"
+					aria-label="error message"
+				>
+					{localError}
 				</div>
 			)}
+
+			<div className="flex flex-col gap-5 ">
+				{flashcards.map((card) => (
+					<FlashcardItem
+						key={card.id}
+						card={card}
+						onRefine={handleRefine}
+						onDelete={handleDelete}
+					/>
+				))}
+			</div>
+
+			<div>
+				<Button onClick={() => downloadDeck({ deckName, flashcards })}>
+					Export Anki Deck
+				</Button>
+			</div>
 		</section>
 	);
 }
