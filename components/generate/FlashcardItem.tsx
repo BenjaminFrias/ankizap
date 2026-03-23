@@ -116,7 +116,6 @@ export default function FlashcardItem({
 							setEditedCard({ ...editedCard, back: e.target.value })
 						}
 						aria-label="edit back card input"
-						autoFocus
 					/>
 				) : (
 					<>
