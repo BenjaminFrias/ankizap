@@ -27,6 +27,7 @@ export type ActionState<T> =
 
 // GENERATION TYPES
 export const GenerationResponseSchema = z.object({
+	deckID: z.string().optional(),
 	deckName: z.string().min(1, 'Deck name is required.'),
 	cards: z.array(FlashcardSchema),
 });

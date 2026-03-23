@@ -26,11 +26,7 @@ export default function Generate() {
 			) : (
 				generateState && (
 					<FlashcardResults
-						key={
-							generateState.ok
-								? generateState.data.cards.map((card) => card.id).join('-')
-								: 'empty'
-						}
+						key={generateState.ok ? generateState.data.deckID : 'no-results'}
 						generateState={generateState}
 					/>
 				)

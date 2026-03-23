@@ -60,7 +60,10 @@ export async function generateAction(
 			id: crypto.randomUUID(),
 		}));
 
-		return { ok: true, data: { ...response.data, cards: cards } };
+		return {
+			ok: true,
+			data: { ...response.data, deckID: crypto.randomUUID(), cards: cards },
+		};
 	}
 
 	return response;
