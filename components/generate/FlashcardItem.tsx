@@ -9,6 +9,7 @@ import { Button } from '../ui/button';
 import { Check, Pen, X } from 'lucide-react';
 import DeletePopOver from './DeletePopOver';
 import ConfirmationCard from './ConfirmationCard';
+import RefineCardLoading from './RefineCardLoading';
 
 type FlashcardItemProps = {
 	card: Flashcard;
@@ -66,11 +67,7 @@ export default function FlashcardItem({
 	};
 
 	if (isRefining) {
-		return (
-			<div className="flex flex-col gap-2 p-4 bg-blue-300 rounded-2xl">
-				<h3 className="font-bold text-2xl text-blue-800">Refining card...</h3>
-			</div>
-		);
+		return <RefineCardLoading />;
 	}
 
 	// Confirmation card
