@@ -6,7 +6,7 @@ import GenerateForm from '@/components/generate/GenerateForm';
 import { useActionState } from 'react';
 
 export default function Generate() {
-	const [generateState, dispatchGenerate, isGenerating] = useActionState(
+	const [generationResult, dispatchGenerate, isGenerating] = useActionState(
 		generateAction,
 		null,
 	);
@@ -24,10 +24,12 @@ export default function Generate() {
 			{isGenerating ? (
 				<h3 className="font-bold text-2xl text-blue-800">Generating...</h3>
 			) : (
-				generateState && (
+				generationResult && (
 					<FlashcardResults
-						key={generateState.ok ? generateState.data.deckID : 'no-results'}
-						generateState={generateState}
+						key={
+							generationResult.ok ? generationResult.data.deckID : 'no-results'
+						}
+						generationResult={generationResult}
 					/>
 				)
 			)}

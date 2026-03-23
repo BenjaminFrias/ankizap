@@ -8,18 +8,18 @@ import downloadDeck from '@/lib/download-deck';
 import DeckTitleInput from './DeckTitleInput';
 
 type FlashcardResultsProps = {
-	generateState: ActionState<GenerationResponse>;
+	generationResult: ActionState<GenerationResponse>;
 };
 
 export default function FlashcardResults({
-	generateState,
+	generationResult,
 }: FlashcardResultsProps) {
 	const [flashcards, setFlashcards] = useState<GenerationResponse['cards']>(
-		generateState.ok ? generateState.data.cards : [],
+		generationResult.ok ? generationResult.data.cards : [],
 	);
 
 	const [deckName, setDeckName] = useState<GenerationResponse['deckName']>(
-		generateState.ok ? generateState.data.deckName : 'MyDeck',
+		generationResult.ok ? generationResult.data.deckName : 'MyDeck',
 	);
 
 	const [localError, setLocalError] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export default function FlashcardResults({
 
 	return (
 		<section>
-			{generateState.ok === true ? (
+			{generationResult.ok === true ? (
 				<div>
 					<DeckTitleInput
 						deckName={deckName}
@@ -87,7 +87,7 @@ export default function FlashcardResults({
 				</div>
 			) : (
 				<div className="p-4 bg-red-100 text-red-700 rounded-lg">
-					{generateState.error}
+					{generationResult.error}
 				</div>
 			)}
 		</section>
