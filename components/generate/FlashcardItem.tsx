@@ -23,13 +23,16 @@ export default function FlashcardItem({
 	onDelete,
 }: FlashcardItemProps) {
 	const [waitingConfirmation, setWaitingConfirmation] = useState(false);
-	const [refineState, dispatchRefine, isRefining] = useActionState(
+	const [refineResult, dispatchRefine, isRefining] = useActionState(
 		async (
 			prevState: ActionState<RefineResponse> | null,
 			formData: FormData,
 		) => {
 			const result = await refineAction(prevState, formData);
-			setWaitingConfirmation(true);
+
+			if (result.ok) {
+				setWaitingConfirmation(true);
+			}
 
 			return result;
 		},
@@ -39,14 +42,14 @@ export default function FlashcardItem({
 	const [isEditing, setIsEditing] = useState(false);
 
 	const refinedCard =
-		refineState?.ok && refineState.data ? refineState.data : null;
+		refineResult?.ok && refineResult.data ? refineResult.data : null;
 
-	const startEditing = () => {
+	const startCardEdit = () => {
 		setEditedCard({ ...card });
 		setIsEditing(true);
 	};
 
-	const saveEdit = () => {
+	const saveCardEdit = () => {
 		if (editedCard.front.trim() === '' && editedCard.back.trim() === '') {
 			return;
 		}
@@ -59,7 +62,7 @@ export default function FlashcardItem({
 		setIsEditing(false);
 	};
 
-	const confirmRefinement = (confirm: boolean) => {
+	const confirmRefinedCard = (confirm: boolean) => {
 		if (confirm && refinedCard) {
 			onRefine({ ...refinedCard });
 		}
@@ -73,7 +76,7 @@ export default function FlashcardItem({
 	// Confirmation card
 	if (waitingConfirmation && refinedCard) {
 		return (
-			<ConfirmationCard card={refinedCard} onConfirm={confirmRefinement} />
+			<ConfirmationCard card={refinedCard} onConfirm={confirmRefinedCard} />
 		);
 	}
 
@@ -87,7 +90,7 @@ export default function FlashcardItem({
 				{isEditing ? (
 					<Input
 						value={editedCard.front}
-						onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+						onKeyDown={(e) => e.key === 'Enter' && saveCardEdit()}
 						onChange={(e) => {
 							setEditedCard({ ...editedCard, front: e.target.value });
 						}}
@@ -108,7 +111,7 @@ export default function FlashcardItem({
 				{isEditing ? (
 					<Input
 						value={editedCard.back}
-						onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+						onKeyDown={(e) => e.key === 'Enter' && saveCardEdit()}
 						onChange={(e) =>
 							setEditedCard({ ...editedCard, back: e.target.value })
 						}
@@ -120,7 +123,7 @@ export default function FlashcardItem({
 						<p>{card.back}</p>
 						<Button
 							variant={'secondary'}
-							onClick={startEditing}
+							onClick={startCardEdit}
 							aria-label="edit card"
 						>
 							<Pen />
@@ -133,7 +136,7 @@ export default function FlashcardItem({
 					<>
 						<Button
 							variant={'secondary'}
-							onClick={saveEdit}
+							onClick={saveCardEdit}
 							aria-label="save card edit"
 						>
 							<Check />
