@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { startTransition, SubmitEventHandler, useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import InputFile from '../ui/input-file';
@@ -17,10 +17,12 @@ import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import {
 	CARD_COUNT_OPTIONS,
 	CARD_TYPES,
+	GenerationRequestSchema,
 	SOURCE_TYPES,
 	SourceType,
 } from '@/types/types';
 import { capitalizeFirst } from '@/lib/utils';
+import ErrorMessage from '../ui/ErrorMessage';
 
 type GenerateFormProps = {
 	onSubmit: (payload: FormData) => void;
@@ -33,99 +35,134 @@ export default function GenerateForm({
 }: GenerateFormProps) {
 	const [isFileInput, setIsFileInput] = useState(false);
 	const [sourceType, setSourceType] = useState<SourceType>('prompt');
+	const [error, setError] = useState<string | null>(null);
 
 	const onSourceChange = (sourceType: SourceType) => {
 		setIsFileInput(sourceType === 'file');
 		setSourceType(sourceType);
 	};
 
+	const handleSubmit: SubmitEventHandler<HTMLFormElement> = (e) => {
+		e.preventDefault();
+		setError(null);
+
+		const formData = new FormData(e.currentTarget);
+		const raw = Object.fromEntries(formData.entries());
+
+		const file = formData.get('file');
+
+		const formPayload = {
+			inputContent: String(raw.inputContent ?? ''),
+			cardCount: raw.cardCount,
+			cardType: raw.cardType,
+			sourceType: raw.sourceType,
+			file: file instanceof File ? file : undefined,
+		};
+
+		const result = GenerationRequestSchema.safeParse(formPayload);
+
+		if (!result.success) {
+			const message = result.error.issues[0]?.message ?? 'Invalid input';
+			setError(message);
+			return;
+		}
+
+		setError(null);
+		startTransition(() => {
+			onSubmit(formData);
+		});
+	};
+
 	return (
-		<form
-			action={onSubmit}
-			className="flex flex-col w-180 bg-white p-5 rounded-2xl gap-5"
-			name="generate-form"
-			id="generate-form"
-		>
-			<div>
-				<Input
-					placeholder="Type your prompt here..."
-					name="inputContent"
-					defaultValue=""
-					className="border-0 shadow-none"
-					required
-				></Input>
-			</div>
+		<div>
+			<form
+				onSubmit={handleSubmit}
+				className="flex flex-col w-180 bg-white p-5 rounded-2xl gap-5"
+				name="generate-form"
+				id="generate-form"
+			>
+				<div>
+					<Input
+						placeholder="Type your prompt here..."
+						name="inputContent"
+						defaultValue=""
+						className="border-0 shadow-none"
+					></Input>
+				</div>
 
-			{isFileInput && <InputFile />}
+				{isFileInput && <InputFile />}
 
-			<div className="flex gap-4">
-				<Select
-					name="cardCount"
-					required
-					defaultValue={String(CARD_COUNT_OPTIONS[0])}
-				>
-					<SelectTrigger className="w-full text-gray-600" size="sm">
-						<SelectValue placeholder="How many?" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<SelectLabel>Amount of cards</SelectLabel>
-							{CARD_COUNT_OPTIONS.map((count) => (
-								<SelectItem key={count} value={String(count)}>
-									{count}
-								</SelectItem>
-							))}
-						</SelectGroup>
-					</SelectContent>
-				</Select>
+				<div className="flex gap-4">
+					<Select
+						name="cardCount"
+						required
+						defaultValue={String(CARD_COUNT_OPTIONS[0])}
+					>
+						<SelectTrigger className="w-full text-gray-600" size="sm">
+							<SelectValue placeholder="How many?" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectLabel>Amount of cards</SelectLabel>
+								{CARD_COUNT_OPTIONS.map((count) => (
+									<SelectItem key={count} value={String(count)}>
+										{count}
+									</SelectItem>
+								))}
+							</SelectGroup>
+						</SelectContent>
+					</Select>
 
-				<Select name="cardType" required defaultValue={CARD_TYPES[0]}>
-					<SelectTrigger className="w-full" size="sm">
-						<SelectValue placeholder="Card type" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<SelectLabel>Choose the card type</SelectLabel>
-							{CARD_TYPES.map((type) => (
-								<SelectItem value={type} key={type}>
-									{capitalizeFirst(type)}
-								</SelectItem>
-							))}
-						</SelectGroup>
-					</SelectContent>
-				</Select>
+					<Select name="cardType" required defaultValue={CARD_TYPES[0]}>
+						<SelectTrigger className="w-full" size="sm">
+							<SelectValue placeholder="Card type" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectLabel>Choose the card type</SelectLabel>
+								{CARD_TYPES.map((type) => (
+									<SelectItem value={type} key={type}>
+										{capitalizeFirst(type)}
+									</SelectItem>
+								))}
+							</SelectGroup>
+						</SelectContent>
+					</Select>
 
-				<input type="hidden" name="sourceType" value={sourceType} />
+					<input type="hidden" name="sourceType" value={sourceType} />
 
-				<ToggleGroup
-					type="single"
-					size="sm"
-					defaultValue={SOURCE_TYPES[0]}
-					variant="outline"
-					spacing={2}
-				>
-					{SOURCE_TYPES.map((type) => (
-						<ToggleGroupItem
-							value={type}
-							aria-label={`Toggle ${type}`}
-							onClick={() => onSourceChange(type)}
-							key={type}
-						>
-							{capitalizeFirst(type)}
-						</ToggleGroupItem>
-					))}
-				</ToggleGroup>
+					<ToggleGroup
+						type="single"
+						size="sm"
+						defaultValue={SOURCE_TYPES[0]}
+						variant="outline"
+						spacing={2}
+					>
+						{SOURCE_TYPES.map((type) => (
+							<ToggleGroupItem
+								value={type}
+								aria-label={`Toggle ${type}`}
+								onClick={() => onSourceChange(type)}
+								key={type}
+							>
+								{capitalizeFirst(type)}
+							</ToggleGroupItem>
+						))}
+					</ToggleGroup>
 
-				<Button
-					type="submit"
-					form="generate-form"
-					size="sm"
-					className="w-30 bg-blue-800"
-					disabled={isGenerating}
-				>
-					{isGenerating ? 'Generating...' : 'Generate'}
-				</Button>
-			</div>
-		</form>
+					<Button
+						type="submit"
+						form="generate-form"
+						size="sm"
+						className="w-30 bg-blue-800"
+						disabled={isGenerating}
+					>
+						{isGenerating ? 'Generating...' : 'Generate'}
+					</Button>
+				</div>
+			</form>
+
+			{error && <ErrorMessage message={error} />}
+		</div>
 	);
 }
