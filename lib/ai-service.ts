@@ -48,10 +48,10 @@ interface FormatterInput {
 type ContentFormatter = (input: FormatterInput) => ContentListUnion;
 
 const SOURCE_FORMATTER: Record<SourceType, ContentFormatter> = {
-	[SourceType.prompt]: (input) => [
+	['prompt']: (input) => [
 		{ text: `User instruction to generate flashcards: ${input.content}` },
 	],
-	[SourceType.link]: (input) => {
+	['link']: (input) => {
 		const fileUri = input.file?.uri ?? input.content;
 		const mimeType = input.file?.mimeType ?? 'video/*';
 		const instructionText = input.content
@@ -60,7 +60,7 @@ const SOURCE_FORMATTER: Record<SourceType, ContentFormatter> = {
 
 		return [{ fileData: { fileUri, mimeType } }, { text: instructionText }];
 	},
-	[SourceType.file]: (input) => {
+	['file']: (input) => {
 		if (!input.file) throw new Error('File data is required.');
 
 		return createUserContent([
@@ -74,7 +74,7 @@ export async function callAI<T>(
 	aiInstruction: string,
 	userInstruction: string,
 	schema: z.ZodType<T>,
-	sourceType: SourceType = SourceType.prompt,
+	sourceType: SourceType = 'prompt',
 	fileData?: { uri: string; mimeType: string },
 ): Promise<ActionState<T>> {
 	if (!API_KEY) {

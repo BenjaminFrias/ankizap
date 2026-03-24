@@ -1,20 +1,17 @@
 import { MAX_CARD_COUNT, MIN_CARD_COUNT } from '@/constants';
 import { z } from 'zod';
 
-export enum SourceType {
-	prompt = 'prompt',
-	file = 'file',
-	link = 'link',
-}
+export const SOURCE_TYPES = ['prompt', 'file', 'link'] as const;
+export type SourceType = (typeof SOURCE_TYPES)[number];
 
-const CardTypeEnum = ['basic', 'reversed'] as const;
-export type CardType = (typeof CardTypeEnum)[number];
+export const CARD_TYPES = ['basic', 'reversed'] as const;
+export type CardType = (typeof CARD_TYPES)[number];
 
 export const FlashcardSchema = z.object({
 	id: z.string().optional(),
 	front: z.string().min(1, 'The front is required'),
 	back: z.string().min(1, 'The back is required'),
-	type: z.enum(CardTypeEnum),
+	type: z.enum(CARD_TYPES),
 });
 
 export const FlashcardArraySchema = z.array(FlashcardSchema);
@@ -43,8 +40,8 @@ export const GenerationRequestSchema = z.object({
 			`Please select at least ${MIN_CARD_COUNT} card to generate.`,
 		)
 		.max(MAX_CARD_COUNT, `Limit is ${MAX_CARD_COUNT} cards per generation`),
-	cardType: z.enum(CardTypeEnum),
-	sourceType: z.enum(SourceType),
+	cardType: z.enum(CARD_TYPES),
+	sourceType: z.enum(SOURCE_TYPES),
 	file: z.instanceof(File).optional(),
 });
 

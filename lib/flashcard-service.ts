@@ -5,7 +5,6 @@ import {
 	GenerationResponse,
 	RefineRequest,
 	RefineResponse,
-	SourceType,
 	RefineResponseSchema,
 } from '@/types/types';
 import { callAI, processAndUploadFileAI } from './ai-service';
@@ -35,7 +34,7 @@ export async function generateFlashcards(
 	let userInstruction = inputContent;
 	let fileInfo: { uri: string; mimeType: string } | undefined = undefined;
 
-	if (sourceType === SourceType.link) {
+	if (sourceType === 'link') {
 		const linkContent = scrapeContentFromPrompt(inputContent);
 
 		if (linkContent === null) {
@@ -66,12 +65,12 @@ export async function generateFlashcards(
 				systemInstruction,
 				userInstruction,
 				GenerationResponseSchema,
-				SourceType.prompt,
+				'prompt',
 			);
 		}
 	}
 
-	if (sourceType === SourceType.file) {
+	if (sourceType === 'file') {
 		try {
 			if (file) {
 				fileInfo = await processAndUploadFileAI(file, file.name);

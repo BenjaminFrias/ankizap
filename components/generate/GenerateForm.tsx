@@ -26,10 +26,10 @@ export default function GenerateForm({
 	isGenerating,
 }: GenerateFormProps) {
 	const [isFileInput, setIsFileInput] = useState(false);
-	const [sourceType, setSourceType] = useState(SourceType.prompt);
+	const [sourceType, setSourceType] = useState<SourceType>('prompt');
 
 	const onSourceChange = (sourceType: SourceType) => {
-		setIsFileInput(sourceType === SourceType.file);
+		setIsFileInput(sourceType === 'file');
 		setSourceType(sourceType);
 	};
 
@@ -91,23 +91,23 @@ export default function GenerateForm({
 					spacing={2}
 				>
 					<ToggleGroupItem
-						value={SourceType.prompt}
+						value={'prompt'}
 						aria-label="Toggle prompt"
-						onClick={() => onSourceChange(SourceType.prompt)}
+						onClick={() => onSourceChange('prompt')}
 					>
 						Prompt
 					</ToggleGroupItem>
 					<ToggleGroupItem
-						value={SourceType.link}
+						value={'link'}
 						aria-label="Toggle link"
-						onClick={() => onSourceChange(SourceType.link)}
+						onClick={() => onSourceChange('link')}
 					>
 						Link
 					</ToggleGroupItem>
 					<ToggleGroupItem
-						value={SourceType.file}
+						value={'file'}
 						aria-label="Toggle file"
-						onClick={() => onSourceChange(SourceType.file)}
+						onClick={() => onSourceChange('file')}
 					>
 						File
 					</ToggleGroupItem>
