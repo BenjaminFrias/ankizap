@@ -14,7 +14,13 @@ import {
 	SelectValue,
 } from '../ui/select';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
-import { SourceType } from '@/types/types';
+import {
+	CARD_COUNT_OPTIONS,
+	CARD_TYPES,
+	SOURCE_TYPES,
+	SourceType,
+} from '@/types/types';
+import { capitalizeFirst } from '@/lib/utils';
 
 type GenerateFormProps = {
 	onSubmit: (payload: FormData) => void;
@@ -53,30 +59,38 @@ export default function GenerateForm({
 			{isFileInput && <InputFile />}
 
 			<div className="flex gap-4">
-				<Select name="cardCount" required defaultValue="5">
+				<Select
+					name="cardCount"
+					required
+					defaultValue={String(CARD_COUNT_OPTIONS[0])}
+				>
 					<SelectTrigger className="w-full text-gray-600" size="sm">
 						<SelectValue placeholder="How many?" />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>
 							<SelectLabel>Amount of cards</SelectLabel>
-							<SelectItem value="5">5</SelectItem>
-							<SelectItem value="10">10</SelectItem>
-							<SelectItem value="20">20</SelectItem>
-							<SelectItem value="30">30</SelectItem>
+							{CARD_COUNT_OPTIONS.map((count) => (
+								<SelectItem key={count} value={String(count)}>
+									{count}
+								</SelectItem>
+							))}
 						</SelectGroup>
 					</SelectContent>
 				</Select>
 
-				<Select name="cardType" required defaultValue="basic">
+				<Select name="cardType" required defaultValue={CARD_TYPES[0]}>
 					<SelectTrigger className="w-full" size="sm">
 						<SelectValue placeholder="Card type" />
 					</SelectTrigger>
 					<SelectContent>
 						<SelectGroup>
 							<SelectLabel>Choose the card type</SelectLabel>
-							<SelectItem value="basic">Basic</SelectItem>
-							<SelectItem value="reversed">Reversed</SelectItem>
+							{CARD_TYPES.map((type) => (
+								<SelectItem value={type} key={type}>
+									{capitalizeFirst(type)}
+								</SelectItem>
+							))}
 						</SelectGroup>
 					</SelectContent>
 				</Select>
@@ -86,31 +100,20 @@ export default function GenerateForm({
 				<ToggleGroup
 					type="single"
 					size="sm"
-					defaultValue="prompt"
+					defaultValue={SOURCE_TYPES[0]}
 					variant="outline"
 					spacing={2}
 				>
-					<ToggleGroupItem
-						value={'prompt'}
-						aria-label="Toggle prompt"
-						onClick={() => onSourceChange('prompt')}
-					>
-						Prompt
-					</ToggleGroupItem>
-					<ToggleGroupItem
-						value={'link'}
-						aria-label="Toggle link"
-						onClick={() => onSourceChange('link')}
-					>
-						Link
-					</ToggleGroupItem>
-					<ToggleGroupItem
-						value={'file'}
-						aria-label="Toggle file"
-						onClick={() => onSourceChange('file')}
-					>
-						File
-					</ToggleGroupItem>
+					{SOURCE_TYPES.map((type) => (
+						<ToggleGroupItem
+							value={type}
+							aria-label={`Toggle ${type}`}
+							onClick={() => onSourceChange(type)}
+							key={type}
+						>
+							{capitalizeFirst(type)}
+						</ToggleGroupItem>
+					))}
 				</ToggleGroup>
 
 				<Button

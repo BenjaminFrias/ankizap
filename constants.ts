@@ -1,2 +1,1 @@
-export const MIN_CARD_COUNT = 5;
-export const MAX_CARD_COUNT = 30;
+export const MIN_PROMPT_LENGTH = 5;

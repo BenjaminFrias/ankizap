@@ -1,4 +1,3 @@
-import { MAX_CARD_COUNT, MIN_CARD_COUNT } from '@/constants';
 import { z } from 'zod';
 
 export const SOURCE_TYPES = ['prompt', 'file', 'link'] as const;
@@ -6,6 +5,13 @@ export type SourceType = (typeof SOURCE_TYPES)[number];
 
 export const CARD_TYPES = ['basic', 'reversed'] as const;
 export type CardType = (typeof CARD_TYPES)[number];
+
+export const CARD_COUNT_OPTIONS = [5, 10, 20, 30] as const;
+export type CardCountOption = (typeof CARD_COUNT_OPTIONS)[number];
+
+export function isPresetCardCount(n: number): n is CardCountOption {
+	return (CARD_COUNT_OPTIONS as readonly number[]).includes(n);
+}
 
 export const FlashcardSchema = z.object({
 	id: z.string().optional(),
@@ -33,13 +39,9 @@ export type GenerationResponse = z.infer<typeof GenerationResponseSchema>;
 
 export const GenerationRequestSchema = z.object({
 	inputContent: z.string().min(10, 'Content must be at least 10 characters.'),
-	cardCount: z.coerce
-		.number()
-		.min(
-			MIN_CARD_COUNT,
-			`Please select at least ${MIN_CARD_COUNT} card to generate.`,
-		)
-		.max(MAX_CARD_COUNT, `Limit is ${MAX_CARD_COUNT} cards per generation`),
+	cardCount: z.coerce.number().refine(isPresetCardCount, {
+		message: `Choose one of: ${CARD_COUNT_OPTIONS.join(', ')} cards.`,
+	}),
 	cardType: z.enum(CARD_TYPES),
 	sourceType: z.enum(SOURCE_TYPES),
 	file: z.instanceof(File).optional(),

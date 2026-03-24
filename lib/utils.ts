@@ -46,3 +46,8 @@ export function extractLink(text: string): string | null {
 
 	return match === null ? null : match[0];
 }
+
+export function capitalizeFirst(value: string): string {
+	if (!value) return '';
+	return value.charAt(0).toUpperCase() + value.slice(1);
+}
