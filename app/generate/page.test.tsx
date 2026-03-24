@@ -327,9 +327,7 @@ describe('Generate Page', () => {
 			);
 
 			expect(
-				await screen.findByText(
-					/please write a valid refine prompt \(5 characters min\)\./i,
-				),
+				await screen.findByText(/Please write a valid prompt\./i),
 			).toBeInTheDocument();
 		});
 	});

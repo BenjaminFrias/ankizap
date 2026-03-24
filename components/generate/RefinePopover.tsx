@@ -2,11 +2,10 @@
 
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Button } from '../ui/button';
-import { Flashcard } from '@/types/types';
+import { Flashcard, RefineRequestSchema } from '@/types/types';
 import { Input } from '../ui/input';
 import { startTransition, SubmitEventHandler, useState } from 'react';
-
-const MIN_REFINE_LENGTH = 5;
+import ErrorMessage from '../ui/ErrorMessage';
 
 type RefinePopoverProps = {
 	card: Flashcard;
@@ -25,32 +24,32 @@ export default function RefinePopover({
 		e.preventDefault();
 		setError(null);
 
-		const trimmed = refineValue.trim();
-		if (trimmed.length < MIN_REFINE_LENGTH) {
-			setError(
-				`Please write a valid refine prompt (${MIN_REFINE_LENGTH} characters min).`,
-			);
+		const formData = new FormData(e.currentTarget);
+		const raw = Object.fromEntries(formData.entries());
+
+		const formPayload = {
+			flashcard: {
+				...card,
+			},
+			refineInstruction: raw.refineInstruction,
+		};
+
+		const result = RefineRequestSchema.safeParse(formPayload);
+
+		if (!result.success) {
+			const message = result.error.issues[0]?.message ?? 'Invalid input';
+			setError(message);
 			return;
 		}
 
-		const formData = new FormData();
-		formData.set(
-			'flashcard',
-			JSON.stringify({
-				id: card.id,
-				front: card.front,
-				back: card.back,
-				type: card.type,
-			}),
-		);
-		formData.set('refineInstruction', trimmed);
-
-		startTransition(() => {
-			refineFormAction(formData);
-		});
-
+		setError(null);
 		setRefineValue('');
 		setIsOpen(false);
+
+		startTransition(() => {
+			formData.set('flashcard', JSON.stringify({ ...card }));
+			refineFormAction(formData);
+		});
 	};
 
 	return (
@@ -84,6 +83,7 @@ export default function RefinePopover({
 							<Input
 								placeholder="Type your refinement prompt"
 								value={refineValue}
+								name="refineInstruction"
 								onChange={(e) => {
 									setRefineValue(e.target.value);
 									setError(null);
@@ -92,15 +92,11 @@ export default function RefinePopover({
 								aria-describedby={error ? `refine-error-${card.id}` : undefined}
 								aria-label="refine card input"
 							/>
+
 							{error && (
-								<p
-									id={`refine-error-${card.id}`}
-									className="text-sm text-destructive"
-									aria-label="refine error message"
-								>
-									{error}
-								</p>
+								<ErrorMessage message={error} className="text-red-600 " />
 							)}
+
 							<Button
 								type="submit"
 								size="sm"

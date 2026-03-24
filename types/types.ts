@@ -52,7 +52,7 @@ export type GenerationRequest = z.infer<typeof GenerationRequestSchema>;
 // REFINE TYPES
 export const RefineRequestSchema = z.object({
 	flashcard: FlashcardSchema,
-	refineInstruction: z.string().min(5, 'Please write a valid refine prompt.'),
+	refineInstruction: z.string().min(5, 'Please write a valid prompt.'),
 });
 export type RefineRequest = z.infer<typeof RefineRequestSchema>;
 
