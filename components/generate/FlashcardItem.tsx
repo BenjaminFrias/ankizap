@@ -10,6 +10,7 @@ import { Check, Pen, X } from 'lucide-react';
 import DeletePopOver from './DeletePopOver';
 import ConfirmationCard from './ConfirmationCard';
 import RefineCardLoading from './RefineCardLoading';
+import ErrorMessage from '../ui/ErrorMessage';
 
 type FlashcardItemProps = {
 	card: Flashcard;
@@ -38,13 +39,12 @@ export default function FlashcardItem({
 		},
 		null,
 	);
-
-	const refinedCard =
-		refineResult?.ok && refineResult.data ? refineResult.data : null;
-
 	const [editedCard, setEditedCard] = useState({ ...card });
 	const [isEditing, setIsEditing] = useState(false);
 	const cardRef = useRef<HTMLDivElement | null>(null);
+
+	const refinedCard =
+		refineResult?.ok && refineResult.data ? refineResult.data : null;
 
 	const startCardEdit = () => {
 		setEditedCard({ ...card });
@@ -104,6 +104,13 @@ export default function FlashcardItem({
 			ref={cardRef}
 		>
 			<>
+				{refineResult && !refineResult.ok && (
+					<ErrorMessage
+						message={refineResult.error}
+						className="text-red-600 text-xs"
+					/>
+				)}
+
 				<p className="font-semibold text-sm text-blue-900 uppercase">Front</p>
 
 				{/* Front edit inputs */}
