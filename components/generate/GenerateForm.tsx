@@ -98,7 +98,11 @@ export default function GenerateForm({
 						required
 						defaultValue={String(CARD_COUNT_OPTIONS[0])}
 					>
-						<SelectTrigger className="w-full text-gray-600" size="sm">
+						<SelectTrigger
+							className="w-full text-gray-600"
+							size="sm"
+							aria-label="card count input"
+						>
 							<SelectValue placeholder="How many?" />
 						</SelectTrigger>
 						<SelectContent>
@@ -114,7 +118,11 @@ export default function GenerateForm({
 					</Select>
 
 					<Select name="cardType" required defaultValue={CARD_TYPES[0]}>
-						<SelectTrigger className="w-full" size="sm">
+						<SelectTrigger
+							className="w-full"
+							size="sm"
+							aria-label="card type input"
+						>
 							<SelectValue placeholder="Card type" />
 						</SelectTrigger>
 						<SelectContent>
@@ -137,11 +145,12 @@ export default function GenerateForm({
 						defaultValue={SOURCE_TYPES[0]}
 						variant="outline"
 						spacing={2}
+						aria-label="source type input group"
 					>
 						{SOURCE_TYPES.map((type) => (
 							<ToggleGroupItem
 								value={type}
-								aria-label={`Toggle ${type}`}
+								aria-label={`toggle ${type}`}
 								onClick={() => onSourceChange(type)}
 								key={type}
 							>

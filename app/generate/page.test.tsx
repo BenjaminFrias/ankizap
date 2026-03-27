@@ -41,13 +41,33 @@ describe('Generate Page', () => {
 
 	// Unit tests
 	describe('basic rendering', () => {
-		it('shows input and button', () => {
+		it('shows generate form with all the input fields', () => {
 			render(<Page />);
 
 			expect(screen.getByRole('textbox')).toBeInTheDocument();
+
+			const cardCountSelect = screen.getByRole('combobox', {
+				name: /card count input/i,
+			});
+
+			const cardTypeSelect = screen.getByRole('combobox', {
+				name: /card type input/i,
+			});
+
+			expect(cardCountSelect).toBeInTheDocument();
+			expect(cardTypeSelect).toBeInTheDocument();
+
+			expect(
+				screen.getByRole('group', { name: /source type input group/i }),
+			).toBeInTheDocument();
+
 			expect(
 				screen.getByRole('button', { name: /generate/i }),
 			).toBeInTheDocument();
+
+			expect(
+				screen.getByRole('button', { name: /generate/i }),
+			).not.toBeDisabled();
 		});
 	});
 
