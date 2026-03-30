@@ -8,12 +8,12 @@ import {
 	GenerationRequest,
 	GenerationRequestSchema,
 	GenerationResponse,
+	isPresetCardCount,
 	RefineRequest,
 	RefineRequestSchema,
 	RefineResponse,
 	SourceType,
 } from './types/types';
-import { MAX_CARD_COUNT, MIN_CARD_COUNT } from './constants';
 
 export async function generateAction(
 	prevState: ActionState<GenerationResponse> | null,
@@ -32,11 +32,7 @@ export async function generateAction(
 	}
 
 	const cardCount = Number(rawData.cardCount as string);
-	if (
-		isNaN(cardCount) ||
-		cardCount < MIN_CARD_COUNT ||
-		cardCount > MAX_CARD_COUNT
-	) {
+	if (isNaN(cardCount) || !isPresetCardCount(cardCount)) {
 		return { ok: false, error: 'Card count must be a valid number' };
 	}
 
